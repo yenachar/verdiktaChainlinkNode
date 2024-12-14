@@ -1,0 +1,101 @@
+------
+Instructions, Based on this: https://docs.chain.link/chainlink-nodes/v1/running-a-chainlink-node
+------
+
+Postgres Database
+
+In /etc/init.d/, run ./postgresql stop
+
+Let <password> be your postress password, then run
+docker run --name cl-postgres -e POSTGRES_PASSWORD=<password> -p 5432:5432 -d postgres
+
+--
+Type the following in root directory:
+
+// For Sepolia
+
+echo "[Log]
+Level = 'warn'
+
+[WebServer]
+AllowOrigins = '\*'
+SecureCookies = false
+
+[WebServer.TLS]
+HTTPSPort = 0
+
+[[EVM]]
+ChainID = '11155111' //Sepolia
+ChainID = '84532' //Base Sepolia
+
+[[EVM.Nodes]]
+Name = 'Sepolia'
+WSURL = 'wss://sepolia.infura.io/ws/v3/cd999ba4abc8439baf03cae967c9ed24'
+HTTPURL = 'https://sepolia.infura.io/v3/cd999ba4abc8439baf03cae967c9ed24'
+" > ~/.chainlink-sepolia/config.toml
+
+// For Base Sepolia
+
+Type the following in root directory:
+
+echo "[Log]
+Level = 'warn'
+
+[WebServer]
+AllowOrigins = '\*'
+SecureCookies = false
+
+[WebServer.TLS]
+HTTPSPort = 0
+
+[[EVM]]
+ChainID = '11155111' //Sepolia
+ChainID = '84532' //Base Sepolia
+
+[[EVM.Nodes]]
+Name = 'Sepolia'
+WSURL = 'wss://base-sepolia.infura.io/ws/v3/6644dc2c810b4a3983b5ee88eb766019'
+HTTPURL = 'https://base-sepolia.infura.io/v3/6644dc2c810b4a3983b5ee88eb766019'
+" > ~/.chainlink-sepolia/config.toml
+
+
+--
+Type the following in root directory:
+
+echo "[Password]
+Keystore = 'Jz23A88isl89a89b'
+[Database]
+URL = 'postgresql://postgres:<password>@host.docker.internal:5432/postgres?sslmode=disable'
+" > ~/.chainlink-sepolia/secrets.toml
+
+
+Note: For testing locally, add ?sslmode=disable to the end of your DATABASE_URL. However you should never do this on a production node.
+--
+Let <email> be the email for your Chainlink node. Let <chainilinkPassword> be the corresponding password.
+echo "<email>
+<chainlinkPassword>
+" > ~/.chainlink-sepolia/.api
+
+--
+To run the Chainlink node:
+
+cd ~/.chainlink-sepolia && docker run --platform linux/x86_64/v8 --name chainlink -v ~/.chainlink-sepolia:/chainlink -it -p 6688:6688 --add-host=host.docker.internal:host-gateway smartcontract/chainlink:2.13.0 node -config /chainlink/config.toml -secrets /chainlink/secrets.toml start -a /chainlink/.api
+
+--
+Use Remix to deploy Operator contract to, e.g., 0xAc9896Fe9c3511C5287e4de72683DF0C461bDa18
+
+To set up Operator contract using Remix:
+LINK address on Base Sepolia: 0xE4aB69C077896252FAFBD49EFD26B5D171A32410 (18 decimals)
+
+To access, visit: http://<ipAddress>, (e.g.  http://38.242.237.177:6688), or localhost:6688 
+
+Use this interface to add the job spec, such as the one given in the file basicJobSpec.
+
+Helpful Commands
+
+To view dockers running, docker ps -a
+To stop a docker, docker stop ID
+To remove dockers, docker rm ID, or docker rm `docker ps -q -a` to remove all
+
+
+Detach from a Docker container by pressing the Ctrl+P command and then the Ctrl-Q command
