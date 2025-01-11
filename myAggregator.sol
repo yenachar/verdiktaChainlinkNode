@@ -6,10 +6,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 using Chainlink for Chainlink.Request;
 
 /**
- * @title AIEvaluationAggregator
+ * @title AIChainlinkRequest
  * @dev Aggregates AI evaluations from multiple Chainlink operators
  */
-contract AIEvaluationAggregator is ChainlinkClient, Ownable {
+contract AIChainlinkRequest is ChainlinkClient, Ownable {
     using Chainlink for Chainlink.Request;
 
     struct OracleConfig {
@@ -80,21 +80,22 @@ contract AIEvaluationAggregator is ChainlinkClient, Ownable {
      * @param jobId Job ID for this oracle
      * @param fee LINK fee for this oracle
      */
-    function addOracle(address operator, bytes32 jobId, uint256 fee) external onlyOwner {
-        require(operator != address(0), "Invalid operator address");
-        require(fee > 0, "Fee must be greater than 0");
-        
-        oracles.push(OracleConfig({
-            operator: operator,
-            jobId: jobId,
-            fee: fee,
-            isActive: true
-        }));
-
-        // Approve the operator to spend LINK
-        LinkTokenInterface link = LinkTokenInterface(_chainlinkTokenAddress());
-        require(link.approve(operator, type(uint256).max), "Failed to approve LINK");
-    }
+   function addOracle(address operator, uint256 jobId, uint256 fee) external onlyOwner {
+       require(operator != address(0), "Invalid operator address");
+       require(fee > 0, "Fee must be greater than 0");
+    
+       bytes32 bytesJobId = bytes32(jobId);
+    
+       oracles.push(OracleConfig({
+           operator: operator,
+           jobId: bytesJobId,
+           fee: fee,
+           isActive: true
+       }));
+       // Approve the operator to spend LINK
+       LinkTokenInterface link = LinkTokenInterface(_chainlinkTokenAddress());
+       require(link.approve(operator, type(uint256).max), "Failed to approve LINK");
+   }
 
     /**
      * @notice Deactivate an oracle
@@ -373,8 +374,8 @@ contract AIEvaluationAggregator is ChainlinkClient, Ownable {
     function getEvaluation(bytes32 aggregatorRequestId) external view returns (
         uint256[] memory likelihoods,
         string[] memory justificationCIDs,
-        uint256 responseCount,
-        uint256 expectedResponses,
+        // uint256 responseCount,
+        // uint256 expectedResponses,
         bool exists
     ) {
         AggregatedEvaluation storage aggEval = aggregatedEvaluations[aggregatorRequestId];
@@ -398,10 +399,23 @@ contract AIEvaluationAggregator is ChainlinkClient, Ownable {
         return (
             aggEval.aggregatedLikelihoods,
             finalJustifications,
-            aggEval.responseCount,
-            aggEval.expectedResponses,
+            // aggEval.responseCount,
+            // aggEval.expectedResponses,
             aggEval.responseCount > 0
         );
+    }
+
+    /**
+     * @notice Get config info for first oracle
+     */
+    function getContractConfig() public view returns (
+        address oracleAddr,
+        address linkAddr,
+        bytes32 jobid,
+        uint256 fee
+    ) {
+        uint256 oracleIndex = 0; //first oracle
+        return (oracles[oracleIndex].operator, _chainlinkTokenAddress(), oracles[oracleIndex].jobId, oracles[oracleIndex].fee);
     }
 
     /**
