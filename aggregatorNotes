@@ -1,0 +1,39 @@
+AIEvaluationAggregator contract does the following::
+
+    Maintains a List of Oracles
+        Stores oracle configurations (operator, jobId, fee, isActive) in the oracles array.
+        Allows the owner to add new oracles (with addOracle) and deactivate existing ones (with deactivateOracle).
+
+    Configurable Query Requirements
+        Tracks two key parameters for AI evaluation requests:
+            requiredOracleQueries: how many total oracle responses are expected per request.
+            minimumResponses: the minimum unique responses needed for a valid result.
+        Lets the owner update requiredOracleQueries via setRequiredOracleQueries.
+
+    Requests Aggregated Evaluations
+        Users call requestAIEvaluation with an array of IPFS CIDs.
+        The contract:
+            Concatenates the CIDs into a single string.
+            Generates a unique aggregatorRequestId with keccak256.
+            Selects oracles randomly (potentially with repeats) and sends individual requests.
+            Stores data about each overall request in an AggregatedEvaluation struct, including how many responses are expected.
+
+    Sends Oracle Requests
+        Uses Chainlink’s ChainlinkClient functionality to build requests (sendOracleRequest) and dispatch them to each selected oracle.
+        Maps each oracle’s request ID back to the aggregator’s aggregatorRequestId so returned data can be properly tracked.
+
+    Handles Oracle Responses
+        The Chainlink callback function fulfill is called when an oracle responds.
+        Each response (likelihood array, justification CID, etc.) is saved in the aggregatedEvaluations[aggregatorRequestId].responses array.
+        Once the number of responses reaches requiredOracleQueries, the contract automatically finalizes aggregation.
+
+    Finalizes Aggregation
+        In finalizeAggregation, the contract identifies an “outlier” response by measuring distances between each pair’s likelihood arrays and excludes that one.
+        Averages the included (non-outlier) responses to create a final aggregatedLikelihoods.
+        Marks the evaluation as complete and emits AggregationCompleted.
+
+    Retrieves Results
+        External callers can use getEvaluation to see the final aggregated likelihoods, included justifications, and the overall status (like how many responses were collected).
+
+    Administrative Functions
+        Lets the owner withdraw LINK tokens from the contract via withdrawLink.
