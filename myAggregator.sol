@@ -52,7 +52,7 @@ contract AIChainlinkRequest is ChainlinkClient, Ownable {
     
     // Events
     event RequiredQueriesUpdated(uint256 newRequiredQueries);
-    event NewAggregationRequest(bytes32 indexed aggregatorRequestId, string[] cids);
+    event RequestAIEvaluation(bytes32 indexed aggregatorRequestId, string[] cids);
     event OracleRequestSent(bytes32 indexed aggregatorRequestId, bytes32 indexed oracleRequestId, address operator);
     event OracleResponseReceived(bytes32 indexed aggregatorRequestId, bytes32 indexed oracleRequestId);
     event AggregationCompleted(bytes32 indexed aggregatorRequestId, uint256[] aggregatedLikelihoods);
@@ -175,7 +175,7 @@ contract AIChainlinkRequest is ChainlinkClient, Ownable {
             emit OracleRequestSent(aggregatorRequestId, oracleRequestId, oracles[oracleIndex].operator);
         }
         
-        emit NewAggregationRequest(aggregatorRequestId, cids);
+        emit RequestAIEvaluation(aggregatorRequestId, cids);
         return aggregatorRequestId;
     }
 
