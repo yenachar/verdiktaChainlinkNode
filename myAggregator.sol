@@ -80,23 +80,21 @@ contract AIChainlinkRequest is ChainlinkClient, Ownable {
      * @param jobId Job ID for this oracle
      * @param fee LINK fee for this oracle
      */
-   function addOracle(address operator, uint256 jobId, uint256 fee) external onlyOwner {
-       require(operator != address(0), "Invalid operator address");
-       require(fee > 0, "Fee must be greater than 0");
-    
-       bytes32 bytesJobId = bytes32(jobId);
-    
-       oracles.push(OracleConfig({
-           operator: operator,
-           jobId: bytesJobId,
-           fee: fee,
-           isActive: true
-       }));
-       // Approve the operator to spend LINK
-       LinkTokenInterface link = LinkTokenInterface(_chainlinkTokenAddress());
-       require(link.approve(operator, type(uint256).max), "Failed to approve LINK");
-   }
+function addOracle(address operator, bytes32 jobId, uint256 fee) external onlyOwner {
+    require(operator != address(0), "Invalid operator address");
+    require(fee > 0, "Fee must be greater than 0");
 
+    oracles.push(OracleConfig({
+        operator: operator,
+        jobId: jobId,
+        fee: fee,
+        isActive: true
+    }));
+
+    // Approve the operator to spend LINK
+    LinkTokenInterface link = LinkTokenInterface(_chainlinkTokenAddress());
+    require(link.approve(operator, type(uint256).max), "Failed to approve LINK");
+}
     /**
      * @notice Deactivate an oracle
      * @param index Index of the oracle in the oracles array
@@ -427,3 +425,4 @@ contract AIChainlinkRequest is ChainlinkClient, Ownable {
         require(link.transfer(_to, _amount), "Unable to transfer");
     }
 }
+
