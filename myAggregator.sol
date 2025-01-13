@@ -369,40 +369,38 @@ function addOracle(address operator, bytes32 jobId, uint256 fee) external onlyOw
     /**
      * @notice Get the current aggregation status and results
      */
-    function getEvaluation(bytes32 aggregatorRequestId) external view returns (
-        uint256[] memory likelihoods,
-        string[] memory justificationCIDs,
-        // uint256 responseCount,
-        // uint256 expectedResponses,
-        bool exists
-    ) {
-        AggregatedEvaluation storage aggEval = aggregatedEvaluations[aggregatorRequestId];
-        
-        // Count included justifications and collect them
-        uint256 includedCount = 0;
-        string[] memory includedJustifications = new string[](aggEval.responses.length);
-        for (uint256 i = 0; i < aggEval.responses.length; i++) {
-            if (aggEval.responses[i].included) {
-                includedJustifications[includedCount] = aggEval.responses[i].justificationCID;
-                includedCount++;
+function getEvaluation(bytes32 aggregatorRequestId) external view returns (
+    uint256[] memory likelihoods,
+    string memory justificationCID,  // Changed from string[] to string
+    bool exists
+) {
+    AggregatedEvaluation storage aggEval = aggregatedEvaluations[aggregatorRequestId];
+    
+    // Count included justifications and collect them
+    string memory concatenatedCIDs = "";
+    bool isFirst = true;
+    
+    for (uint256 i = 0; i < aggEval.responses.length; i++) {
+        if (aggEval.responses[i].included) {
+            // Add comma before all but first CID
+            if (!isFirst) {
+                concatenatedCIDs = string(
+                    abi.encodePacked(concatenatedCIDs, ",")
+                );
             }
+            concatenatedCIDs = string(
+                abi.encodePacked(concatenatedCIDs, aggEval.responses[i].justificationCID)
+            );
+            isFirst = false;
         }
-        
-        // Create final justifications array of correct size
-        string[] memory finalJustifications = new string[](includedCount);
-        for (uint256 i = 0; i < includedCount; i++) {
-            finalJustifications[i] = includedJustifications[i];
-        }
-        
-        return (
-            aggEval.aggregatedLikelihoods,
-            finalJustifications,
-            // aggEval.responseCount,
-            // aggEval.expectedResponses,
-            aggEval.responseCount > 0
-        );
     }
-
+    
+    return (
+        aggEval.aggregatedLikelihoods,
+        concatenatedCIDs,              // Return comma-delimited string instead of array
+        aggEval.responseCount > 0
+    );
+}
     /**
      * @notice Get config info for first oracle
      */
