@@ -1,2 +1,2 @@
 cd ~/.chainlink-sepolia
-./start.sh
+./startCL.sh
