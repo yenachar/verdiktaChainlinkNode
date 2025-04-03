@@ -24,7 +24,7 @@ contract MyOperator is Operator {
    {
        _verifyOracleRequestAndProcessPayment(requestId, payment, callbackAddress, callbackFunctionId, expiration, 2);
        emit OracleResponse(requestId);
-       require(gasleft() >= 400000, "Must provide consumer enough gas"); // or your chosen constant
+       require(gasleft() >= MY_MINIMUM_CONSUMER_GAS_LIMIT, "Must provide consumer enough gas"); // or your chosen constant
        (bool success, ) = callbackAddress.call(abi.encodePacked(callbackFunctionId, data));
        return success;
    }
