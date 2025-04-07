@@ -25,7 +25,7 @@ encode_data  [type="ethabiencode"
             data="{ \\"requestId\\": $(decode_log.requestId), \\"value\\": $(parse_scores), \\"cid\\": $(parse_cid) }"]
 
     encode_tx    [type="ethabiencode" \
-             abi="fulfillOracleRequest3(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes data)" \
+             abi="fulfillOracleRequest2(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes data)" \
              data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\": $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"]
 
 
