@@ -1,0 +1,33 @@
+[Log]
+Level="warn"
+
+[WebServer]
+AllowOrigins="*"
+SecureCookies=false
+
+[WebServer.TLS]
+HTTPSPort=0
+
+[[EVM]]
+ChainID=84532
+Enabled=true
+FinalityDepth=50
+MinContractPayment=0
+
+[EVM.GasEstimator]
+Mode="BlockHistory"
+TipCapDefault="2000000000"
+TipCapMin="30000000"
+FeeCapDefault="30000000000"
+
+[EVM.GasEstimator.BlockHistory]    
+BlockHistorySize = 4               # optimization
+BatchSize        = 6               # optional: fetch fewer blocks per RPC call
+
+[EVM.NodePool]
+PollInterval   = "10s"             # how often each RPC is ping-checked
+
+[[EVM.Nodes]]
+Name="Base-Sepolia"
+WSURL="wss://base-sepolia.infura.io/ws/v3/<KEY>"
+HTTPURL="https://base-sepolia.infura.io/v3/<KEY>"
