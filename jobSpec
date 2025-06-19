@@ -1,14 +1,15 @@
 type = "directrequest"
 schemaVersion = 1
-name = "Verdikta AI Evaluation2"
-contractAddress = "0xD67D6508D4E5611cd6a463Dd0969Fa153Be91101"
+name = "Verdikta 6"
+externalJobID = "replace!-c510-41ba-a5f2-dea284614590"
+forwardingAllowed = false
 maxTaskDuration = "0s"
+contractAddress = "0x00A08b75178de0e0d7FF13Fdd4ef925AC3572503"
 evmChainID = "84532"
+minIncomingConfirmations = 0
+minContractPaymentLinkJuels = "0"
 observationSource = """
-    decode_log   [type="ethabidecodelog" \
-                 abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)" \
-                 data="$(jobRun.logData)" \
-                 topics="$(jobRun.logTopics)"]
+    decode_log   [type="ethabidecodelog" abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)" data="$(jobRun.logData)" topics="$(jobRun.logTopics)"]
 
     decode_cbor  [type="cborparse" data="$(decode_log.data)"]
     
@@ -24,16 +25,14 @@ encode_data  [type="ethabiencode"
             abi="(bytes32 requestId, uint256[] value, string cid)" 
             data="{ \\"requestId\\": $(decode_log.requestId), \\"value\\": $(parse_scores), \\"cid\\": $(parse_cid) }"]
 
-    encode_tx    [type="ethabiencode" \
-             abi="fulfillOracleRequest2(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes data)" \
-             data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\": $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"]
+    encode_tx    [type="ethabiencode" abi="fulfillOracleRequestV(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes data)" data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\": $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"]
 
 
 
     submit_tx [type="ethtx" 
-          to="0xD67D6508D4E5611cd6a463Dd0969Fa153Be91101" 
+          to="0x00A08b75178de0e0d7FF13Fdd4ef925AC3572503" 
           data="$(encode_tx)" 
-          gasLimit="1500000"
+          gasLimit="2500000"
           minConfirmations="2"
           gasPriceWei="10000000000"
           evmChainID="84532"]
@@ -41,5 +40,4 @@ encode_data  [type="ethabiencode"
     decode_log -> decode_cbor -> fetch -> parse_scores -> parse_cid -> encode_data -> encode_tx -> submit_tx
     fetch -> encode_data
 """
-
 
