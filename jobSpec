@@ -20,7 +20,7 @@ observationSource = """
     
 
 parse_scores [type="jsonparse" path="data,aggregatedScore" data="$(fetch)"]
-parse_cid    [type="jsonparse" path="data,justificationCID" data="$(fetch)"]
+parse_cid    [type="jsonparse" path="data,justificationCid" data="$(fetch)"]
 encode_data  [type="ethabiencode" 
             abi="(bytes32 requestId, uint256[] value, string cid)" 
             data="{ \\"requestId\\": $(decode_log.requestId), \\"value\\": $(parse_scores), \\"cid\\": $(parse_cid) }"]
