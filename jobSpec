@@ -1,15 +1,16 @@
 type = "directrequest"
 schemaVersion = 1
-name = "Verdikta 6"
-externalJobID = "replace!-c510-41ba-a5f2-dea284614590"
-forwardingAllowed = false
+name = "Verdikta 10"
+externalJobID = "change:858acbb95d90492bbff6a0eb568112b0"
+fromAddress = "change:0x7D1F2ed1d49f2711B301982dF121dd0F4E587759"
+contractAddress = "change:0x00A08b75178de0e0d7FF13Fdd4ef925AC3572503"
 maxTaskDuration = "0s"
-contractAddress = "0x00A08b75178de0e0d7FF13Fdd4ef925AC3572503"
 evmChainID = "84532"
-minIncomingConfirmations = 0
-minContractPaymentLinkJuels = "0"
 observationSource = """
-    decode_log   [type="ethabidecodelog" abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)" data="$(jobRun.logData)" topics="$(jobRun.logTopics)"]
+    decode_log   [type="ethabidecodelog" \
+                 abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)" \
+                 data="$(jobRun.logData)" \
+                 topics="$(jobRun.logTopics)"]
 
     decode_cbor  [type="cborparse" data="$(decode_log.data)"]
     
@@ -25,7 +26,9 @@ encode_data  [type="ethabiencode"
             abi="(bytes32 requestId, uint256[] value, string cid)" 
             data="{ \\"requestId\\": $(decode_log.requestId), \\"value\\": $(parse_scores), \\"cid\\": $(parse_cid) }"]
 
-    encode_tx    [type="ethabiencode" abi="fulfillOracleRequestV(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes data)" data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\": $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"]
+    encode_tx    [type="ethabiencode" \
+             abi="fulfillOracleRequestV(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes data)" \
+             data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\": $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"]
 
 
 
