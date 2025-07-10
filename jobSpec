@@ -1,6 +1,6 @@
 type = "directrequest"
 schemaVersion = 1
-name = "Verdikta 10"
+name = "change:Verdikta 10"
 externalJobID = "change:858acbb95d90492bbff6a0eb568112b0"
 fromAddress = "change:0x7D1F2ed1d49f2711B301982dF121dd0F4E587759"
 contractAddress = "change:0x00A08b75178de0e0d7FF13Fdd4ef925AC3572503"
